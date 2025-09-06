@@ -1713,6 +1713,15 @@ class LaTeXTranslator(SphinxTranslator):
                                 r'\sphinxcode{\sphinxupquote{')
         # get consistent trailer
         hlcode = hlcode.rstrip()[:-14]  # strip \end{Verbatim}
+        # Remove leading and trailing whitespace to avoid unwanted spaces in output.
+        # The replacement above can leave a newline after \sphinxupquote{ which 
+        # creates unwanted space in PDF output
+        hlcode = hlcode.strip()
+        # If there's still content, ensure no leading newline after the opening brace
+        if hlcode.startswith(r'\sphinxcode{\sphinxupquote{'):
+            prefix = r'\sphinxcode{\sphinxupquote{'
+            suffix = hlcode[len(prefix):]
+            hlcode = prefix + suffix.lstrip()
         self.body.append(hlcode)
         self.body.append('}}')
         raise nodes.SkipNode
